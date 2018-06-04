@@ -1,0 +1,116 @@
+" Minimalistic vimrc that doesn't load plugins and syntax highlighting, but
+" sets some reasonable options.
+" /* vim: set filetype=vim : */
+
+set nocompatible
+set laststatus=2
+set noswapfile
+set nobackup
+set nowritebackup
+set termencoding=utf-8
+set encoding=utf-8
+set fileencoding=utf-8
+set fileformats=unix
+set autoindent
+set smartindent
+set smarttab
+set shiftwidth=2
+set softtabstop=2
+set tabstop=2
+set expandtab
+set visualbell
+set noerrorbells
+set history=1000
+set autoread
+set nowrap
+set ignorecase
+set smartcase
+set showmatch
+set incsearch
+set nohlsearch
+set showmatch
+set hidden
+set shortmess=atI
+set title
+set showmode
+set nostartofline
+set list
+set listchars=tab:▸\ ,trail:·,nbsp:_
+set scrolloff=5
+set sidescrolloff=5
+set sidescroll=1
+set ttyfast
+set wildignore+=*/tmp/*,*.so,*.swp,*.zip,*/.git/*,*/.hg/*,*/log/*,*/data/*,*/doc/*,*/.yardoc/*,*.pdf
+set wildmenu
+set gdefault
+set noendofline
+set complete+=kspell
+set grepprg=ag\ --vimgrep
+set lazyredraw
+set backspace=indent,eol,start
+set splitbelow
+set splitright
+set undodir=~/.vim/undodir
+set undofile
+set undolevels=5000
+set regexpengine=1
+set matchpairs+=<:>,«:»
+set nrformats-=octal
+set formatoptions+=j
+set ttimeout
+set ttimeoutlen=50
+set clipboard=unnamed
+
+augroup configgroup
+  autocmd!
+  autocmd BufRead,BufNewFile *.md set wm=2 tw=80
+  autocmd BufRead,BufNewFile *.json setfiletype json syntax=javascript
+  autocmd BufRead,BufNewFile *.prawn set filetype=ruby
+  autocmd BufRead,BufNewFile *.md set filetype=markdown
+  autocmd BufEnter *.rb syn match error contained "\<binding.pry\>"
+  autocmd BufRead,BufNewFile *.md,*.markdown,*.mdown setlocal spell
+  autocmd FileType gitcommit setlocal spell tw=68
+  autocmd FileType tex setlocal spell
+  autocmd BufRead,BufNewFile *_history set nonumber nornu
+  autocmd FileType gitcommit,markdown,text,tex set nornu nolist
+  autocmd FileType markdown map <leader><CR> :! pandoc % \| bcat<CR>
+  autocmd FileType json map <silent> <leader><CR> :%!python -m json.tool<CR>
+  autocmd BufRead,BufNewFile *.bib set nornu nolist
+  autocmd BufRead,BufNewFile *_spec.rb map <Leader><CR> :!bundle exec rspec %<CR>
+  autocmd FileType slim,haml,html,tex set wrap
+  autocmd FileType slim,haml,html,tex noremap <buffer> j gj
+  autocmd FileType slim,haml,html,tex noremap <buffer> k gk
+augroup END
+
+" syntax on
+
+let mapleader = "\<Space>"
+runtime! macros/matchit.vim
+
+filetype plugin on
+filetype indent on
+
+nnoremap ; :
+nnoremap , ;
+
+nnoremap <C-J> <C-W><C-J>
+nnoremap <C-K> <C-W><C-K>
+nnoremap <C-L> <C-W><C-L>
+nnoremap <C-H> <C-W><C-H>
+
+nnoremap K :grep "<C-R><C-W>"<CR>
+
+nnoremap <BS> <C-^>
+nnoremap § :ls<cr>:b
+
+noremap <leader>w :w<CR>
+noremap <leader>s :%s/
+noremap <leader>; :!
+noremap <leader>h :help<space>
+noremap <leader>f :find<space>
+
+" Uppercase typed word
+inoremap <C-u> <esc>viwUea
+
+let g:netrw_liststyle = 3
+let g:netrw_nobeval = 1

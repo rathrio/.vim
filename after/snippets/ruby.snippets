@@ -1,0 +1,57 @@
+snippet! :
+	:${1:key} => ${2:'value'}
+snippet! :q
+	:quantity => ${1:'quantity'}
+snippet! :p
+	:price_value => ${1:'price'}
+snippet! :pc
+	:price_currency => ${1:'currency'}
+snippet! ;
+	${1:key}: ${2:'value'}
+snippet! sb
+	transparent(0.5) { stroke_bounds }
+snippet! asp
+	assert_punched '${1:block}'
+snippet! rfp
+	refute_punched '${1:block}'
+snippet! mapp
+	map(&:${0})
+snippet! selp
+	select(&:${0})
+snippet! rejp
+	reject(&:${0})
+snippet! finp
+	find(&:${0})
+snippet! injp
+	inject(&:${0})
+snippet! detp
+	detect(&:${0})
+snippet! sorbb
+	sort_by(&:${0})
+snippet! sop
+	save_and_open_page
+snippet! Fa
+	FactoryGirl.create(:${0:name})
+snippet! Fac
+	FactoryGirl.create(
+		:${0}
+	)
+snippet! fet
+	fetch(:${0:key})
+snippet! rul
+	rule(:${1:name}) { ${2} }
+snippet! mp
+	ManualPrinter
+snippet! mpl
+	ManualPrinter.log("${0}")
+snippet! mplw
+	ManualPrinter.log("${0}", :warn)
+snippet! inc
+	include?(${0})
+snippet! minitest
+	require 'minitest/autorun'
+	require 'minitest/pride'
+
+	class Test < Minitest::Test
+		${0}
+	end
