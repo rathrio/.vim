@@ -62,6 +62,8 @@ Plug 'sheerun/vim-polyglot'
 Plug 'rhysd/vim-wasm'
 " ES6 Support
 Plug 'isRuslan/vim-es6'
+Plug 'peitalin/vim-jsx-typescript'
+Plug 'prettier/vim-prettier', { 'do': 'yarn install' }
 " Plug 't9md/vim-ruby-xmpfilter'
 " Plug 'justinj/vim-react-snippets'
 " Plug 'racer-rust/vim-racer'
@@ -69,9 +71,9 @@ Plug 'isRuslan/vim-es6'
 call plug#end()
 
 " Show line numbers
-" set number
+set number
 " Relative line numbers
-" set rnu
+set rnu
 " Always show status line
 set laststatus=2
 " Statusline
@@ -145,13 +147,13 @@ set sidescroll=1
 set ttyfast
 " Look for files recursively
 " set path+=**
-set wildignore+=*/tmp/*,*.so,*.swp,*.zip,*/.git/*,*/.hg/*,*/log/*,*/data/*,*/doc/*,*/.yardoc/*,*.pdf
+set wildignore+=*/tmp/*,*.so,*.swp,*.zip,*/.git/*,*/.hg/*,*/log/*,*/data/*,*/doc/*,*/.yardoc/*,*.pdf,*/*.history/*
 " Enhance command-line completion
 set wildmenu
 " Add the g flag to search/replace by default
 set gdefault
 " Don’t add empty newlines at the end of files
-set noendofline
+" set noendofline
 " Word completion when spell checking enabled
 set complete+=kspell
 " Always use popup menu for completion
@@ -221,6 +223,7 @@ augroup configgroup
   " Custom filetypes
   autocmd BufRead,BufNewFile *.prawn,*.axlsx set filetype=ruby
   autocmd BufRead,BufNewFile *.md,*mdown set filetype=markdown
+  autocmd BufRead,BufNewFile .prettierrc set filetype=json
 
   autocmd BufEnter *.rb syn match error contained "\<binding.pry\>"
 
@@ -256,12 +259,16 @@ augroup configgroup
   autocmd FileType postscr map <leader><CR> :! open % <CR>
 
   autocmd FileType html map <silent> <leader><CR> :!open %<CR>
-  autocmd FileType javascript map <silent> <leader><CR> :JSHint<CR>
 
   " https://pascalprecht.github.io/2014/07/10/pretty-print-json-in-vim/
   " autocmd FileType json map <silent> <leader><CR> :%!python -m json.tool<CR>
 
   autocmd BufRead,BufNewFile *.bib set nornu nolist
+
+  " Custom comment strings
+  autocmd FileType javascript.jsx setlocal commentstring={/*\ %s\ */}
+  autocmd FileType typescript.jsx setlocal commentstring={/*\ %s\ */}
+
 
   " Where to wrap lines
   " autocmd FileType slim,haml,html,tex set wrap
@@ -277,12 +284,6 @@ augroup configgroup
   " autocmd BufRead,BufNewFile _sandbox.rb nmap <buffer> <C-j> <Plug>(xmpfilter-mark)
   " autocmd BufRead,BufNewFile _sandbox.rb xmap <buffer> <C-j> <Plug>(xmpfilter-mark)
   " autocmd BufRead,BufNewFile _sandbox.rb imap <buffer> <C-j> <Plug>(xmpfilter-mark)
-
-  " Rust Racer completions
-  autocmd FileType rust nmap gd <Plug>(rust-def)
-  autocmd FileType rust nmap gs <Plug>(rust-def-split)
-  autocmd FileType rust nmap gx <Plug>(rust-def-vertical)
-  autocmd FileType rust nmap <leader>gd <Plug>(rust-doc)
 augroup END
 
 let mapleader = "\<Space>"
@@ -344,7 +345,7 @@ noremap <leader>; :!
 " Fast save
 noremap <leader>w :w<CR>
 " Edit vimrc
-noremap <leader>ev :vs $MYVIMRC<CR>
+noremap <leader>ev :vs ~/.vimrc<CR>
 " Fast help
 noremap <leader>h :help<space>
 " Help for word under cursor
@@ -353,8 +354,11 @@ noremap <leader>H :help<space><C-r><C-w>
 noremap <leader>C :VCoolor<CR>
 " Find
 noremap <leader>f :find<space>
-" Lint with ALE
-noremap <leader>l :ALEToggle<CR>
+" Linting
+noremap <leader>lt :ALEToggle<CR>
+noremap <leader>lf :ALEFix<CR>
+noremap <leader>lh :ALEHover<CR>
+noremap <leader>lp :Prettier<CR>
 
 " Run tests
 nnoremap <silent> <leader>rn :TestNearest<CR>
@@ -398,11 +402,11 @@ vnoremap <silent> # :<C-U>
   \escape(@", '?\.*$^~['), '\_s\+', '\\_s\\+', 'g')<CR><CR>
   \gV:call setreg('"', old_reg, old_regtype)<CR>)])))))]))))
 
-if has('nvim')
-  tnoremap <Esc> <c-\><c-n>
-  let $NVIM_TUI_ENABLE_TRUE_COLOR=1
-  let $NVIM_TUI_ENABLE_CURSOR_SHAPE=1
-endif
+" if has('nvim')
+"   tnoremap <Esc> <c-\><c-n>
+"   let $NVIM_TUI_ENABLE_TRUE_COLOR=1
+"   let $NVIM_TUI_ENABLE_CURSOR_SHAPE=1
+" endif
 
 nnoremap <silent> <C-H> :TmuxNavigateLeft<cr>
 nnoremap <silent> <C-J> :TmuxNavigateDown<cr>
@@ -425,14 +429,25 @@ if executable('rg')
 endif
 
 " Disable ale by default
-let g:ale_enabled = 0
+" let g:ale_enabled = 0
 " Enable completion where available.
 let g:ale_completion_enabled = 1
+" Enable hover info and show it in ballons if possible.
+let b:ale_set_balloons = 1
+" Show the gutter at all times.
+let g:ale_sign_column_always = 1
+
 
 " Enable eslint autofix
 let g:ale_fixers = {
 \   'javascript': [
 \       'eslint'
+\   ],
+\   'typescript': [
+\       'tslint'
+\   ],
+\   'ruby': [
+\       'rubocop'
 \   ],
 \}
 
@@ -446,7 +461,7 @@ let g:vcoolor_lowercase = 1
 let g:netrw_liststyle = 3
 
 " I still hate balloons
-let g:netrw_nobeval = 1
+" let g:netrw_nobeval = 1
 
 " Enable jsx syntax highlighting in all js files
 let g:jsx_ext_required = 0
