@@ -28,8 +28,6 @@ Plug 'jiangmiao/auto-pairs'
 Plug 'ludovicchabant/vim-gutentags'
 " Async search with ack
 Plug 'wincent/ferret'
-" Play nice with iterm2 and tmux
-Plug 'sjl/vitality.vim'
 " More text objects
 Plug 'wellle/targets.vim'
 " Fancy rails commands
@@ -62,12 +60,17 @@ Plug 'sheerun/vim-polyglot'
 Plug 'rhysd/vim-wasm'
 " ES6 Support
 Plug 'isRuslan/vim-es6'
+" TSX
 Plug 'peitalin/vim-jsx-typescript'
+" Opinionated formatter
 Plug 'prettier/vim-prettier', { 'do': 'yarn install' }
 " Plug 't9md/vim-ruby-xmpfilter'
 " Plug 'justinj/vim-react-snippets'
 " Plug 'racer-rust/vim-racer'
-" Plug 'Valloric/YouCompleteMe'
+Plug 'autozimu/LanguageClient-neovim', {
+\ 'branch': 'next',
+\ 'do': 'bash install.sh',
+\ }
 call plug#end()
 
 " Show line numbers
@@ -226,6 +229,8 @@ augroup configgroup
   autocmd BufRead,BufNewFile .prettierrc set filetype=json
 
   autocmd BufEnter *.rb syn match error contained "\<binding.pry\>"
+  " Configure ruby omni-completion to use the language client:
+  autocmd FileType ruby setlocal omnifunc=LanguageClient#complete
 
   " More indentation for C code
   autocmd BufRead,BufNewFile *.c set shiftwidth=4 tabstop=4 softtabstop=4
@@ -245,7 +250,7 @@ augroup configgroup
 
   " Where to enable spell checking by default
   autocmd BufRead,BufNewFile *.md,*.markdown,*.mdown setlocal spell
-  autocmd FileType gitcommit setlocal spell tw=68
+  autocmd FileType gitcommit setlocal spell tw=68 nonumber norelativenumber
   autocmd FileType tex setlocal spell
 
   " Don't render line numbers in history files
@@ -269,6 +274,10 @@ augroup configgroup
   autocmd FileType javascript.jsx setlocal commentstring={/*\ %s\ */}
   autocmd FileType typescript.jsx setlocal commentstring={/*\ %s\ */}
 
+  " Don't want line numbers in terminal
+  if has('nvim')
+    autocmd TermOpen * setlocal nonumber norelativenumber
+  endif
 
   " Where to wrap lines
   " autocmd FileType slim,haml,html,tex set wrap
@@ -436,20 +445,32 @@ let g:ale_completion_enabled = 1
 let b:ale_set_balloons = 1
 " Show the gutter at all times.
 let g:ale_sign_column_always = 1
-
-
+" Only lint on save.
+let g:ale_lint_on_text_changed = 'never'
+let g:ale_lint_on_enter = 0
+" Linters
+let g:ale_linters = {
+\   'javascript': ['eslint'],
+\   'typescript': ['tslint', 'tsserver', 'typecheck'],
+\   'ruby': ['rubocop', 'ruby'],
+\}
 " Enable eslint autofix
 let g:ale_fixers = {
-\   'javascript': [
-\       'eslint'
-\   ],
-\   'typescript': [
-\       'tslint'
-\   ],
-\   'ruby': [
-\       'rubocop'
-\   ],
+\   'javascript': ['eslint'],
+\   'typescript': ['tslint'],
+\   'ruby': ['rubocop'],
 \}
+
+" LanguageClient config
+let g:LanguageClient_serverCommands = {
+\ 'rust': ['rustup', 'run', 'nightly', 'rls'],
+\ 'python': ['pyls'],
+\ 'ruby': ['tcp://localhost:7658'],
+\ }
+" Don't send a stop signal to the server when exiting vim.
+" This is optional, but I don't like having to restart Solargraph
+" every time I restart vim.
+let g:LanguageClient_autoStop = 0
 
 " Disable all vcoolor mappings
 let g:vcoolor_disable_mappings = 1
@@ -460,11 +481,8 @@ let g:vcoolor_lowercase = 1
 " Similar to nerdtree
 let g:netrw_liststyle = 3
 
-" I still hate balloons
-" let g:netrw_nobeval = 1
-
 " Enable jsx syntax highlighting in all js files
-let g:jsx_ext_required = 0
+" let g:jsx_ext_required = 0
 
 " make test commands execute using dispatch.vim
 " let test#strategy = 'dispatch'
