@@ -67,16 +67,16 @@ Plug 'prettier/vim-prettier', { 'do': 'yarn install' }
 " Plug 't9md/vim-ruby-xmpfilter'
 " Plug 'justinj/vim-react-snippets'
 " Plug 'racer-rust/vim-racer'
-Plug 'autozimu/LanguageClient-neovim', {
-\ 'branch': 'next',
-\ 'do': 'bash install.sh',
-\ }
+" Plug 'autozimu/LanguageClient-neovim', {
+" \ 'branch': 'next',
+" \ 'do': 'bash install.sh',
+" \ }
 call plug#end()
 
 " Show line numbers
 set number
 " Relative line numbers
-set rnu
+" set rnu
 " Always show status line
 set laststatus=2
 " Statusline
@@ -159,8 +159,8 @@ set gdefault
 " set noendofline
 " Word completion when spell checking enabled
 set complete+=kspell
-" Always use popup menu for completion
-" set completeopt+=menuone,noinsert
+" Fix for alecompletion
+" set completeopt+=noinsert
 " Use ag over Grep
 set grepprg=rg\ --vimgrep
 " Only redraw when necessary
@@ -229,8 +229,6 @@ augroup configgroup
   autocmd BufRead,BufNewFile .prettierrc set filetype=json
 
   autocmd BufEnter *.rb syn match error contained "\<binding.pry\>"
-  " Configure ruby omni-completion to use the language client:
-  autocmd FileType ruby setlocal omnifunc=LanguageClient#complete
 
   " More indentation for C code
   autocmd BufRead,BufNewFile *.c set shiftwidth=4 tabstop=4 softtabstop=4
@@ -249,7 +247,7 @@ augroup configgroup
   let g:markdown_fenced_languages = ['coffee', 'css', 'erb=eruby', 'javascript', 'js=javascript', 'json=javascript', 'ruby', 'sass', 'xml', 'html']
 
   " Where to enable spell checking by default
-  autocmd BufRead,BufNewFile *.md,*.markdown,*.mdown setlocal spell
+  autocmd BufRead,BufNewFile *.md,*.markdown,*.mdown,*.txt setlocal spell
   autocmd FileType gitcommit setlocal spell tw=68 nonumber norelativenumber
   autocmd FileType tex setlocal spell
 
@@ -335,6 +333,8 @@ noremap <C-p> :Files<CR>
 noremap <leader>t :BTags<CR>
 " Find tag in current project
 noremap <leader>T :Tags<CR>
+" Find lines in file
+noremap <leader>/ :BLines<CR>
 " Open tag in vsplit
 noremap <C-\> :vsp <CR>:exec("tag ".expand("<cword>"))<CR>
 " Substitute
@@ -448,29 +448,33 @@ let g:ale_sign_column_always = 1
 " Only lint on save.
 let g:ale_lint_on_text_changed = 'never'
 let g:ale_lint_on_enter = 0
+" Don't highlight text, the marker on the left is enough.
+let g:ale_set_highlights = 0
 " Linters
 let g:ale_linters = {
 \   'javascript': ['eslint'],
 \   'typescript': ['tslint', 'tsserver', 'typecheck'],
 \   'ruby': ['rubocop', 'ruby'],
+\   'python': ['pylint', 'pyls'],
 \}
 " Enable eslint autofix
 let g:ale_fixers = {
 \   'javascript': ['eslint'],
 \   'typescript': ['tslint'],
-\   'ruby': ['rubocop'],
+\   'ruby': ['rubocop', 'rufo'],
+\   'python': ['yapf'],
 \}
 
 " LanguageClient config
-let g:LanguageClient_serverCommands = {
-\ 'rust': ['rustup', 'run', 'nightly', 'rls'],
-\ 'python': ['pyls'],
-\ 'ruby': ['tcp://localhost:7658'],
-\ }
+" let g:LanguageClient_serverCommands = {
+" \ 'rust': ['rustup', 'run', 'nightly', 'rls'],
+" \ 'python': ['pyls'],
+" \ 'ruby': ['tcp://localhost:7658'],
+" \ }
 " Don't send a stop signal to the server when exiting vim.
 " This is optional, but I don't like having to restart Solargraph
 " every time I restart vim.
-let g:LanguageClient_autoStop = 0
+" let g:LanguageClient_autoStop = 0
 
 " Disable all vcoolor mappings
 let g:vcoolor_disable_mappings = 1
@@ -486,6 +490,7 @@ let g:netrw_liststyle = 3
 
 " make test commands execute using dispatch.vim
 " let test#strategy = 'dispatch'
+" let test#strategy = 'neovim'
 
 " Highlight matches in ferret search
 " let g:FerretHlsearch=1
