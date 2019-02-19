@@ -5,11 +5,11 @@ Plug 'tomtom/tlib_vim'
 Plug 'garbas/vim-snipmate'
 " Snippet collection
 Plug 'honza/vim-snippets'
-" Alignment
-Plug 'junegunn/vim-easy-align'
 " Fuzzy finder
 Plug 'junegunn/fzf', { 'dir': '~/.fzf', 'do': './install --all' }
 Plug 'junegunn/fzf.vim'
+" Alignment
+Plug 'junegunn/vim-easy-align'
 " Colorpicker
 Plug 'KabbAmine/vCoolor.vim'
 " Change bg color of hex codes, etc in buffer
@@ -18,12 +18,12 @@ Plug 'ap/vim-css-color'
 Plug 'christoomey/vim-tmux-navigator'
 " Color scheme
 Plug 'dracula/vim'
-Plug 'altercation/vim-colors-solarized'
-Plug 'skielbasa/vim-material-monokai'
+" Plug 'altercation/vim-colors-solarized'
+" Plug 'skielbasa/vim-material-monokai'
 " Fancy Test commands
 Plug 'janko-m/vim-test'
-" Complete matching pairs
-Plug 'jiangmiao/auto-pairs'
+" " Complete matching pairs
+" Plug 'jiangmiao/auto-pairs'
 " Automaticallly generate tag files
 Plug 'ludovicchabant/vim-gutentags'
 " Async search with ack
@@ -53,7 +53,12 @@ Plug 'tpope/vim-unimpaired'
 " Slim up newtr
 Plug 'tpope/vim-vinegar'
 " Async linting
-Plug 'w0rp/ale'
+" Plug 'w0rp/ale'
+" Configurable LSP Client
+" Plug 'autozimu/LanguageClient-neovim', {
+"       \ 'branch': 'next',
+"       \ 'do': 'bash install.sh',
+"       \ }
 " Languages and Snippets
 Plug 'sheerun/vim-polyglot'
 " Web assembly support
@@ -74,7 +79,7 @@ Plug 'prettier/vim-prettier', { 'do': 'yarn install' }
 call plug#end()
 
 " Show line numbers
-set number
+" set number
 " Relative line numbers
 " set rnu
 " Always show status line
@@ -148,8 +153,6 @@ set sidescrolloff=5
 set sidescroll=1
 " Optimize for fast terminal connections
 set ttyfast
-" Look for files recursively
-" set path+=**
 set wildignore+=*/tmp/*,*.so,*.swp,*.zip,*/.git/*,*/.hg/*,*/log/*,*/data/*,*/doc/*,*/.yardoc/*,*.pdf,*/*.history/*
 " Enhance command-line completion
 set wildmenu
@@ -161,7 +164,7 @@ set gdefault
 set complete+=kspell
 " Fix for alecompletion
 " set completeopt+=noinsert
-" Use ag over Grep
+" Use rg as search backend
 set grepprg=rg\ --vimgrep
 " Only redraw when necessary
 set lazyredraw
@@ -256,15 +259,6 @@ augroup configgroup
 
   " Stuff I don't care about when writing,
   autocmd FileType gitcommit,markdown,text,tex set nornu nolist
-
-  autocmd FileType markdown map <leader><CR> :! pandoc % \| bcat<CR>
-
-  autocmd FileType postscr map <leader><CR> :! open % <CR>
-
-  autocmd FileType html map <silent> <leader><CR> :!open %<CR>
-
-  " https://pascalprecht.github.io/2014/07/10/pretty-print-json-in-vim/
-  " autocmd FileType json map <silent> <leader><CR> :%!python -m json.tool<CR>
 
   autocmd BufRead,BufNewFile *.bib set nornu nolist
 
@@ -401,15 +395,15 @@ noremap <leader>0 :tablast<cr>
 
 " Search for selected text, forwards or backwards.
 vnoremap <silent> * :<C-U>
-  \let old_reg=getreg('"')<Bar>let old_regtype=getregtype('"')<CR>
-  \gvy/<C-R><C-R>=substitute(
-  \escape(@", '/\.*$^~['), '\_s\+', '\\_s\\+', 'g')<CR><CR>
-  \gV:call setreg('"', old_reg, old_regtype)<CR>
+      \let old_reg=getreg('"')<Bar>let old_regtype=getregtype('"')<CR>
+      \gvy/<C-R><C-R>=substitute(
+      \escape(@", '/\.*$^~['), '\_s\+', '\\_s\\+', 'g')<CR><CR>
+      \gV:call setreg('"', old_reg, old_regtype)<CR>
 vnoremap <silent> # :<C-U>
-  \let old_reg=getreg('"')<Bar>let old_regtype=getregtype('"')<CR>
-  \gvy?<C-R><C-R>=substitute(
-  \escape(@", '?\.*$^~['), '\_s\+', '\\_s\\+', 'g')<CR><CR>
-  \gV:call setreg('"', old_reg, old_regtype)<CR>)])))))]))))
+      \let old_reg=getreg('"')<Bar>let old_regtype=getregtype('"')<CR>
+      \gvy?<C-R><C-R>=substitute(
+      \escape(@", '?\.*$^~['), '\_s\+', '\\_s\\+', 'g')<CR><CR>
+      \gV:call setreg('"', old_reg, old_regtype)<CR>)])))))]))))
 
 " if has('nvim')
 "   tnoremap <Esc> <c-\><c-n>
@@ -437,25 +431,32 @@ if executable('rg')
   let g:ackprg = 'rg --vimgrep'
 endif
 
+" Use Graal LSP
+let g:LanguageClient_serverCommands = {
+      \ 'javascript': ['tcp://127.0.0.1:8123'],
+      \ 'javascript.jsx': ['tcp://127.0.0.1:8123'],
+      \ }
+
 " Disable ale by default
-" let g:ale_enabled = 0
+let g:ale_enabled = 0
 " Enable completion where available.
 let g:ale_completion_enabled = 1
 " Enable hover info and show it in ballons if possible.
 let b:ale_set_balloons = 1
 " Show the gutter at all times.
-let g:ale_sign_column_always = 1
+" let g:ale_sign_column_always = 1
 " Only lint on save.
-let g:ale_lint_on_text_changed = 'never'
-let g:ale_lint_on_enter = 0
+" let g:ale_lint_on_text_changed = 'never'
+" let g:ale_lint_on_enter = 0
 " Don't highlight text, the marker on the left is enough.
-let g:ale_set_highlights = 0
+" let g:ale_set_highlights = 0
 " Linters
 let g:ale_linters = {
 \   'javascript': ['eslint'],
 \   'typescript': ['tslint', 'tsserver', 'typecheck'],
 \   'ruby': ['rubocop', 'ruby'],
 \   'python': ['pylint', 'pyls'],
+\   'rust': ['cargo', 'rls', 'rustc'],
 \}
 " Enable eslint autofix
 let g:ale_fixers = {
@@ -463,18 +464,8 @@ let g:ale_fixers = {
 \   'typescript': ['tslint'],
 \   'ruby': ['rubocop', 'rufo'],
 \   'python': ['yapf'],
+\   'rust': ['rustfmt'],
 \}
-
-" LanguageClient config
-" let g:LanguageClient_serverCommands = {
-" \ 'rust': ['rustup', 'run', 'nightly', 'rls'],
-" \ 'python': ['pyls'],
-" \ 'ruby': ['tcp://localhost:7658'],
-" \ }
-" Don't send a stop signal to the server when exiting vim.
-" This is optional, but I don't like having to restart Solargraph
-" every time I restart vim.
-" let g:LanguageClient_autoStop = 0
 
 " Disable all vcoolor mappings
 let g:vcoolor_disable_mappings = 1
@@ -486,7 +477,7 @@ let g:vcoolor_lowercase = 1
 let g:netrw_liststyle = 3
 
 " Enable jsx syntax highlighting in all js files
-" let g:jsx_ext_required = 0
+let g:jsx_ext_required = 1
 
 " make test commands execute using dispatch.vim
 " let test#strategy = 'dispatch'
@@ -512,7 +503,6 @@ nmap ga <Plug>(EasyAlign)
 " You can't take that away from me Pope.
 nmap co yo
 
-" Because I can't type for shit
 iab relaod reload
 iab relado reload
 iab udpate update
